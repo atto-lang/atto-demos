@@ -1,0 +1,47 @@
+name: AI example inventory integrity
+
+on:
+  pull_request:
+    paths:
+      - 'ai/**'
+      - 'AGENTS.md'
+      - 'cli/*.ores'
+      - 'desktop-app/*.ores'
+      - 'web-server/*.ores'
+      - 'interop/*.ores'
+      - '.github/workflows/ai-inventory.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ai/**'
+      - 'AGENTS.md'
+      - 'cli/*.ores'
+      - 'desktop-app/*.ores'
+      - 'web-server/*.ores'
+      - 'interop/*.ores'
+      - '.github/workflows/ai-inventory.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0 # historical commit tree must be present
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '22.20.0'
+      - name: Adversarial manifest tests (NOT compilation)
+        run: node --test ai/check-examples.test.mjs
+      - name: Verify historical Git tree and pinned source bytes (NOT compilation)
+        run: node ai/check-examples.mjs
