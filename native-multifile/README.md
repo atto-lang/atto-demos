@@ -54,7 +54,7 @@ exit codes, and guest stdout. **They never compile or execute AttoLang**.
 
 ## Exact Java/Graal guest execution
 
-Use a trusted isolated Linux runner with JDK 25, Maven, coreutils, a clean
+Use a trusted isolated Linux runner with GraalVM JDK 25, Maven, coreutils, a clean
 checkout of the pinned Java source repo at `JAVA_COMPILER_REF`, and
 an authorized exact demo checkout. For example:
 
@@ -69,14 +69,14 @@ The runner rejects mismatched/dirty source trees, malformed commit IDs,
 symlinked receipt directories, and unsafe Maven argument paths. It builds
 the exact compiler via Maven, resolves its pinned runtime dependency classpath,
 then invokes `dev.oreslang.launcher.OresMain` in a **separate JVM process**
-so Maven plugin failures cannot be mistaken for guest diagnostics. It checks output and four negative compile-time failure cases with specific,
+so Maven plugin failures cannot be mistaken for guest diagnostics. The dedicated JVM explicitly grants native access to its audited classpath and enables the legacy Unsafe memory operations required by the pinned Truffle dependency. It does not suppress fallback-runtime warnings or guest diagnostics. It checks output and four negative compile-time failure cases with specific,
 anchored compiler diagnostics, and records demo/compiler Git heads and trees,
 source and artifact SHA-256 hashes, exact phase/exit codes, and per-case output.
 An exit code of `1` alone does **not** make a negative test pass, and an
 unrelated Maven or classpath error cannot satisfy the source-specific oracle. A successful
 Maven build **alone** is never a guest-execution pass.
 
-The `native-multifile.yml` workflow runs both host-policy checks and a separate public-compiler guest job on same-repository PRs, using an ephemeral GitHub-hosted runner, anonymous exact-SHA compiler fetch, read-only permissions and no persisted checkout credentials. Its
+The `native-multifile.yml` workflow runs both host-policy checks and a separate public-compiler guest job on same-repository PRs, using an ephemeral GitHub-hosted runner, GraalVM JDK 25, anonymous exact-SHA compiler fetch, read-only permissions and no persisted checkout credentials. Its
 opt-in self-hosted guest job only admits `workflow_dispatch` from an
 **exact reviewed main SHA**. This prevents an unreviewed PR from obtaining
 arbitrary execution on a trusted private-compiler runner. Before merge,

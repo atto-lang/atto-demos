@@ -113,6 +113,11 @@ bash "$root/scripts/atto-runtime-classpath-audit.sh" \
   "$compiler/target/classes" "$receipt/classpath.txt" "$receipt"
 runtime_classpath="$compiler/target/classes:$(cat "$receipt/classpath.txt")"
 java -version >"$receipt/java-version.stdout" 2>"$receipt/java-version.stderr"
+# Fail closed instead of suppressing the Truffle fallback-runtime warning.
+# A GraalVM JDK is required for a JIT qualification, not interpreter-only execution.
+if ! grep -qi graalvm "$receipt/java-version.stderr"; then
+  echo "NOT_EXECUTED: JIT qualification requires a GraalVM JDK" >&2; exit 69
+fi
 
 # Record authored sources separately from compiled artifacts. This is
 # provenance, not a substitute for actual compiler execution.
@@ -136,7 +141,8 @@ invoke() {
     env -u ORESLANG_PATH -u JAVA_TOOL_OPTIONS -u _JAVA_OPTIONS \
         -u JDK_JAVA_OPTIONS -u CLASSPATH \
       timeout --signal=TERM --kill-after=5s 120s \
-      java -cp "$runtime_classpath" dev.oreslang.launcher.OresMain "$@"
+      java --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow \
+        -cp "$runtime_classpath" dev.oreslang.launcher.OresMain "$@"
   ) >"$receipt/$label.stdout" 2>"$receipt/$label.stderr" || exit_code=$?
   printf '%s\n' "$exit_code" >"$receipt/$label.exit"
   return "$exit_code"
