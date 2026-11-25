@@ -10,7 +10,7 @@ This repository is maintained at [atto-lang/atto-demos](https://github.com/atto-
 
 ## What this project explores
 
-A collection of practical reference programs and demonstrations.
+A collection of practical reference programs and demonstrations across CLI, HTTP, actors, desktop and interop, with explicit backend feature gates.
 
 ## How to use these examples
 
@@ -33,10 +33,16 @@ These examples are intended to demonstrate AttoLang concepts. Examples may depen
 
 **Belongs here:** Curated cross-domain example applications, runnable manifests and links to individual domain-specific demo repos.
 
-**Belongs elsewhere:** Single tiny introduction in atto-demo; isolated experiments in atto-proof-of-concepts; reusable libraries in library repos.
+**Belongs elsewhere:** Single tiny introduction in atto-demo; isolated experiments in atto-proof-of-concepts; reusable libraries in library repos. Production-grade deployment and hosted tenant infrastructure, identity, marketplace and billing belong in separately governed product repositories, not in language demonstrations.
 
 **Security and portability boundary:** Examples should use .atto where supported, preserve .ores legacy compatibility, list required permissions and exact verified compiler/runtime receipts.
 
 AttoLang is the canonical project name; new source, examples and documentation use `.atto` and the `atto-lang` repository organization. This README defines scope, not feature readiness.
 
 **Acceptance:** name exact source SHA/tree, runtime/toolchain, positive and negative checks and execution receipt before claiming support. Host-only tests and empty CI steps do not prove guest execution.
+
+## Legacy compatibility and migration safeguards
+
+The archived [Oreslang demos](https://github.com/ores-truffle-oreslang/oreslang-demos) are historical; this repository is the canonical AttoLang destination. Keep working `.ores` inputs, legacy package names and CLI paths until compiler-backed `.atto` compatibility is demonstrated for each relevant backend. Do not claim that a repository rename, copy or reopened PR establishes Git identity or feature parity.
+
+Language examples, compilers, tooling and libraries belong in [atto-lang](https://github.com/atto-lang); hosted production infrastructure belongs in [atto-co](https://github.com/atto-co). For any future ownership transfer or product carve-out, obtain appropriate owner authorization and security review. Record repository ID, exact HEAD and tree, history, access, protection/rulesets, PRs, packages, releases, Actions runners and billing, secrets, webhooks, Apps, Pages, dependency URLs and rollback plan. Verify identity and security after the transfer and execute exact-head tests before changing consumer paths. Do not export private code without authorization. Empty or absent CI steps mean `NOT_EXECUTED`; host/reference checks do not establish guest execution.
