@@ -1,55 +1,48 @@
-# AttoLang demos (`oreslang-demos`)
+> **AI agent instructions (organization-wide):** Before working on code, issues, or pull requests, read and follow the [organization `AGENTS.md`](https://github.com/atto-lang/.github/blob/main/AGENTS.md), including its **merge-first stealth-development policy**. Honor any repository-local `AGENTS.md`, explicit holds, and GitHub-enforced rules.
 
-Runnable example applications for **AttoLang**, formerly called Oreslang.
+# atto-demos
 
-This repository keeps the historic `oreslang-demos` path, `.ores` fixtures, Java class names and `oreslang` command names while their actual toolchain migration is tested. New language source and examples should use `.atto` once the selected compiler accepts it. Do not rename existing source files without updating launchers, host integrations and executable tests.
+Example applications showcasing AttoLang across platforms and use cases.
 
-## Layout
+## Naming migration and language authority
 
-- `cli/` — a pure AttoLang command-line application assembled from three `.ores` files.
-- `desktop-app/` — a native desktop host whose application title, size, and content are defined by four AttoLang files.
-- `web-server/` — a local HTTP host whose route table, content types, and response bodies are defined by three AttoLang files, with `WebServer.ores` as the composition root.
-- `interop/` — mixed Java/AttoLang source demos in both directions.
+This repository is maintained at [atto-lang/atto-demos](https://github.com/atto-lang/atto-demos); use `https://github.com/atto-lang/atto-demos.git` for Git remotes and canonical `.atto` source examples. The normative language contract is [atto-spec](https://github.com/atto-lang/atto-spec), with executable guest evidence tracked by [atto-platform-conformance](https://github.com/atto-lang/atto-platform-conformance). Follow current ownership, borrowing, effects, actor, and syntax rules there; do not infer implemented features from a README or unexecuted CI.
 
-## Requirements
+## What this project explores
 
-- `oreslang-compiler` on `PATH`, or set `ORESLANG_COMPILER=/path/to/oreslang-compiler`.
-- A JDK for the small desktop/window and HTTP-listener host adapters.
-- Optional: the public `oreslang` CLI for non-executing checks.
-- For the in-process Java -> AttoLang embedding demo, set `ORESLANG_SOURCE_DIR` to a local checkout of `oreslang-source.java` (or provide `ORESLANG_CLASSPATH` directly).
+A collection of practical reference programs and demonstrations across CLI, HTTP, actors, desktop and interop, with explicit backend feature gates.
 
-## Multi-file demos
+## How to use these examples
 
-The current runtime can execute a single source unit reliably, while runtime cross-file linking is still being hardened. These demos therefore make the source-unit boundary explicit: each `run.sh` concatenates its ordered `.ores` files into one temporary `.ores` program before execution.
+1. Check the repository contents for `.atto` examples and target-specific project manifests.
+2. Use the compiler/backend indicated by each example's actual files and scripts.
+3. Run checked-in tests or example commands only where documented and verified.
+4. Record compiler revision, expected output, and actual result when reporting an issue.
 
-That keeps the examples genuinely multi-file at authoring time without hiding application logic in Java or depending on an unfinished runtime linker.
+## Portability and status
 
-The Java files that remain are deliberately generic capability adapters:
+These examples are intended to demonstrate AttoLang concepts. Examples may depend on unfinished language features or particular backends; their presence is not evidence that every listed feature executes on all targets. Unsupported features should be marked in the individual example's documentation.
 
-- `desktop-app/DesktopHost.java` owns only the Swing/native-window boundary.
-- `web-server/HttpHost.java` owns only the JDK HTTP-listener boundary.
+## Links
 
-The actual demo configuration, routes, content types, copy, math, and response bodies live in AttoLang.
+- [AttoLang repositories](https://github.com/atto-lang)
+- [Canonical language specification](https://github.com/atto-lang/atto-spec)
+- [Backend conformance](https://github.com/atto-lang/atto-platform-conformance)
 
-## Java / AttoLang interop
+## Repository ownership and contribution routing
 
-`interop/JavaEmbedsOreslang.java` contains an AttoLang program directly in a Java text block and evaluates it in-process through Graal Polyglot. This is true Java-hosted AttoLang execution; it does not spawn the AttoLang CLI.
+**Belongs here:** Curated cross-domain example applications, runnable manifests and links to individual domain-specific demo repos.
 
-`interop/OreslangEmbedsJava.ores` demonstrates the reverse source direction using the runtime surface available today: an AttoLang program owns and emits Java source, which the host script then runs with Java source-file mode. This is build-time/code-generation interop, not unrestricted guest reflection.
+**Belongs elsewhere:** Single tiny introduction in atto-demo; isolated experiments in atto-proof-of-concepts; reusable libraries in library repos. Production-grade deployment and hosted tenant infrastructure, identity, marketplace and billing belong in separately governed product repositories, not in language demonstrations.
 
-Direct AttoLang -> Java object/method calls should use a future capability-gated host-binding API with explicit exports. The demos intentionally do not pretend that unrestricted `Java.type()`-style host access exists.
+**Security and portability boundary:** Examples should use .atto where supported, preserve .ores legacy compatibility, list required permissions and exact verified compiler/runtime receipts.
 
-## 2026-10-06 compiler PR compatibility
+AttoLang is the canonical project name; new source, examples and documentation use `.atto` and the `atto-lang` repository organization. This README defines scope, not feature readiness.
 
-For the October 6, 2026 upstream compiler PR checkpoint, see [docs/compiler-pr-sync.md](docs/compiler-pr-sync.md). These features remain unmerged; this repo preserves its existing compiler reference and defaults until exact-SHA integration evidence is available.
+**Acceptance:** name exact source SHA/tree, runtime/toolchain, positive and negative checks and execution receipt before claiming support. Host-only tests and empty CI steps do not prove guest execution.
 
-## Repository ownership and migration (2026-11-08)
+## Legacy compatibility and migration safeguards
 
-AttoLang is the current public language name; `ores-truffle-oreslang/oreslang-demos` is still the historical Oreslang repository. Preserve working `.ores` source inputs, old package names and CLI paths until compiler-backed `.atto` compatibility is established per backend.
+The archived [Oreslang demos](https://github.com/ores-truffle-oreslang/oreslang-demos) are historical; this repository is the canonical AttoLang destination. Keep working `.ores` inputs, legacy package names and CLI paths until compiler-backed `.atto` compatibility is demonstrated for each relevant backend. Do not claim that a repository rename, copy or reopened PR establishes Git identity or feature parity.
 
-- **Belongs here:** broader CLI, HTTP, actor, desktop and interop demos with explicit backend feature gates.
-- **Does not belong here:** production-grade deployment or unverifiable guest capabilities.
-- **Organization boundary:** [atto-lang](https://github.com/atto-lang) should own language examples, compilers, tooling and libraries. [atto-co](https://github.com/atto-co) owns separately governed hosted deployment, production tenant infrastructure, identity, marketplace and billing. Existing same-purpose `atto-*` repositories do not establish a completed Git transfer or code parity.
-- **Proposed first transfer:** `atto-lang/oreslang-demos` under this original repository identity/name, not an unapproved source clone or a direct move to `atto-co`. Any later managed-product carve-out needs a new governance decision.
-
-**Preflight and cutover:** coordinate with [issue #26](https://github.com/ores-truffle-oreslang/.github/issues/26), follow private [migration proposal #25](https://github.com/ores-truffle-oreslang/.github/pull/25), obtain source/target owner and independent security approval. Record repo numeric ID, exact HEAD SHA/tree, branch/ruleset protection, original and new access, open PRs, packages, releases, Actions billing/runners, secrets, webhooks, GitHub Apps, Pages, dependency URLs and rollback plan. Do not mirror private code without authorization. After actual GitHub ownership transfer, verify unchanged ID/tree/history, restore security and run exact-head CI before consumer/CLI/import edits. `steps=[]` or `steps=null` is `NOT_EXECUTED`; host/reference checks are not proof that guest AttoLang ran.
+Language examples, compilers, tooling and libraries belong in [atto-lang](https://github.com/atto-lang); hosted production infrastructure belongs in [atto-co](https://github.com/atto-co). For any future ownership transfer or product carve-out, obtain appropriate owner authorization and security review. Record repository ID, exact HEAD and tree, history, access, protection/rulesets, PRs, packages, releases, Actions runners and billing, secrets, webhooks, Apps, Pages, dependency URLs and rollback plan. Verify identity and security after the transfer and execute exact-head tests before changing consumer paths. Do not export private code without authorization. Empty or absent CI steps mean `NOT_EXECUTED`; host/reference checks do not establish guest execution.
