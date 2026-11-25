@@ -51,6 +51,54 @@ jobs:
         shell: bash
         run: bash scripts/test-native-multifile-policy.sh
 
+  public-java-guest:
+    # Public canonical compiler only; never admit fork code to a trusted runner.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Fetch exact public compiler without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          pin="$(cat native-multifile/JAVA_COMPILER_REF)"
+          [[ "$pin" =~ ^[a-f0-9]{40}$ ]]
+          test "$(wc -c < native-multifile/JAVA_COMPILER_REF)" -eq 41
+          compiler="$RUNNER_TEMP/atto-java-public"
+          git init -q "$compiler"
+          GIT_TERMINAL_PROMPT=0 git -C "$compiler" -c credential.helper= fetch --depth=1 https://github.com/atto-lang/atto-source.java.git "$pin"
+          git -C "$compiler" checkout --detach FETCH_HEAD
+          test "$(git -C "$compiler" rev-parse HEAD)" = "$pin"
+          git -C "$compiler" rev-parse HEAD^{tree}
+      - name: Execute all seven real compiler guest cases
+        shell: bash
+        env:
+          ATTO_EXPECTED_DEMO_SHA: ${{ github.event.pull_request.head.sha }}
+          ATTO_JAVA_SOURCE_DIR: ${{ runner.temp }}/atto-java-public
+          ATTO_RECEIPT_DIR: ${{ runner.temp }}/atto-public-guest-receipt
+        run: |
+          set -euo pipefail
+          bash scripts/run-native-multifile-java.sh
+          grep -Fx 'status=PASS' "$ATTO_RECEIPT_DIR/identity.txt"
+          grep -Fx 'positive_cases=3' "$ATTO_RECEIPT_DIR/identity.txt"
+          grep -Fx 'negative_cases=4' "$ATTO_RECEIPT_DIR/identity.txt"
+          test "$(wc -l < "$ATTO_RECEIPT_DIR/cases.tsv")" -eq 11
+      - name: Retain exact-head public guest receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-multifile-public-guest-receipt
+          path: ${{ runner.temp }}/atto-public-guest-receipt
+          if-no-files-found: warn
+
   trusted-java-guest:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, linux, x64, oreslang-jdk25]

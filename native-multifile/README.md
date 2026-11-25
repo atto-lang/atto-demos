@@ -29,7 +29,7 @@ File-level project configuration is distinct from source-level module aliases.
 ## Source and backend pin
 
 `JAVA_COMPILER_REF` is a separately reviewed, opt-in candidate snapshot of
-the **private** `ores-truffle-oreslang/oreslang-source.java` compiler:
+the canonical public [`atto-lang/atto-source.java`](https://github.com/atto-lang/atto-source.java) compiler (historically private in the legacy organization):
 `6d8eb70048eafc9a84c5aebe9c1bb06104f16e76` (observed main 2026-11-08).
 It is **not** a claim that these fixtures passed at that head, nor an update
 to the historical `SOURCE_REF`.
@@ -52,10 +52,10 @@ synthetic compiler/Maven logs to prove the **oracle fails closed** against
 unrelated infrastructure errors, wrong source locations, timeouts, misleading
 exit codes, and guest stdout. **They never compile or execute AttoLang**.
 
-## Exact Java/Graal guest execution (trusted runner only)
+## Exact Java/Graal guest execution
 
 Use a trusted isolated Linux runner with JDK 25, Maven, coreutils, a clean
-checkout of the **private** Java source repo at `JAVA_COMPILER_REF`, and
+checkout of the pinned Java source repo at `JAVA_COMPILER_REF`, and
 an authorized exact demo checkout. For example:
 
 ```bash
@@ -76,7 +76,7 @@ An exit code of `1` alone does **not** make a negative test pass, and an
 unrelated Maven or classpath error cannot satisfy the source-specific oracle. A successful
 Maven build **alone** is never a guest-execution pass.
 
-The `native-multifile.yml` workflow's public PR job is source-only. Its
+The `native-multifile.yml` workflow runs both host-policy checks and a separate public-compiler guest job on same-repository PRs, using an ephemeral GitHub-hosted runner, anonymous exact-SHA compiler fetch, read-only permissions and no persisted checkout credentials. Its
 opt-in self-hosted guest job only admits `workflow_dispatch` from an
 **exact reviewed main SHA**. This prevents an unreviewed PR from obtaining
 arbitrary execution on a trusted private-compiler runner. Before merge,
@@ -101,12 +101,10 @@ exercises actual guest linking.
 
 ## Cross-organization CI boundary
 
-The Java compiler is private. Its checked-in
+The legacy private Java compiler's checked-in
 `docs/security/CI_PRIVATE_SOURCE_MIRRORING.md` requires approved destination
 identity, protected source main and independent security-owner attestation
-before **any** private source-bearing transfer. Current source-main reports
-`protected: false`, so this qualification does **not** mirror compiler blobs
-to another organization, even if that organization has working Actions runners.
+before **any** private source-bearing transfer. Private-source exports remain subject to those controls. The canonical AttoLang Java compiler is now publicly accessible; the hosted PR job fetches its exact public revision without credentials and does not export private source.
 
 An alternate-org **source-free** carrier may mirror exact SHA-identical public
 checker scripts and run their host-only tests. Keep that evidence separately
